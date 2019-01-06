@@ -113,9 +113,30 @@ public class DragLayout extends FrameLayout {
             return top;
         }
 
+        /**
+         * childView位置改变时执行
+         * @param changedView
+         * @param left child当前最新的left
+         * @param top child当前最新的top
+         * @param dx 本次水平移动的距离
+         * @param dy 本次垂直移动的距离
+         */
+        @Override
+        public void onViewPositionChanged(@NonNull View changedView, int left, int top, int dx, int dy) {
+            super.onViewPositionChanged(changedView, left, top, dx, dy);
+            if (changedView== blueView){
+                //红色控件跟随执行
+                redView.layout(redView.getLeft()+dx,redView.getTop()+dy,redView.getRight()+dx,redView.getBottom()+dy);
+            }
+            if (changedView== redView){
+                //蓝色子控件跟随移动
+                blueView.layout(blueView.getLeft()+dx,blueView.getTop()+dy,blueView.getRight()+dx,blueView.getBottom()+dy);
+            }
+        }
+
         @Override
         public boolean tryCaptureView(@NonNull View child, int pointerId) {
-            return child == blueView;
+            return child == blueView || child == redView;
         }
     };
 }
