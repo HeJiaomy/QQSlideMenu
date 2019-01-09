@@ -1,7 +1,9 @@
-package com.example.hejiao.qqslidemenu;
+package com.example.hejiao.qqslidemenu.test;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import com.example.hejiao.qqslidemenu.R;
 
 public class TestActivity extends AppCompatActivity {
 

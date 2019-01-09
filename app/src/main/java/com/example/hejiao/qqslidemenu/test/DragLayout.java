@@ -1,9 +1,8 @@
-package com.example.hejiao.qqslidemenu;
+package com.example.hejiao.qqslidemenu.test;
 
 import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
-import android.support.v4.graphics.ColorUtils;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
@@ -11,6 +10,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
+
+import com.example.hejiao.qqslidemenu.ColorUtil;
 
 public class DragLayout extends FrameLayout {
     private View redView;

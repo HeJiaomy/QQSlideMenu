@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".TestActivity">
+    tools:context=".test.TestActivity">
 
-    <com.example.hejiao.qqslidemenu.DragLayout
+    <com.example.hejiao.qqslidemenu.test.DragLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <TextView
@@ -17,5 +17,5 @@
             android:layout_width="@dimen/width"
             android:layout_height="@dimen/height"
             android:background="#0000ff"/>
-    </com.example.hejiao.qqslidemenu.DragLayout>
+    </com.example.hejiao.qqslidemenu.test.DragLayout>
 </android.support.constraint.ConstraintLayout>
