@@ -4,8 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:paddingLeft="20dp"
-    android:paddingTop="50dp"
-    android:background="@mipmap/bg">
+    android:paddingTop="50dp">
 
     <ImageView
         android:layout_width="50dp"

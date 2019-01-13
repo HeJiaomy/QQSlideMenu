@@ -1,6 +1,10 @@
 package com.example.hejiao.qqslidemenu;
 
+import android.animation.ArgbEvaluator;
+import android.animation.FloatEvaluator;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
@@ -16,6 +20,18 @@ public class SlideMenu extends FrameLayout {
     private View menuView;
     private ViewDragHelper viewDragHelper;
     private double dragRange;
+    private FloatEvaluator floatEvaluator;
+    private ArgbEvaluator argbEvaluator;
+
+    enum DragState {
+        OPEN, CLOSE
+    }
+
+    private DragState currentState = DragState.CLOSE;//默认状态关闭
+
+    public DragState getCurrentState() {
+        return currentState;
+    }
 
     public SlideMenu(Context context) {
         super(context);
@@ -34,6 +50,8 @@ public class SlideMenu extends FrameLayout {
 
     private void init() {
         viewDragHelper = ViewDragHelper.create(this, cb);
+        floatEvaluator = new FloatEvaluator();
+        argbEvaluator = new ArgbEvaluator();
     }
 
     @Override
@@ -104,22 +122,74 @@ public class SlideMenu extends FrameLayout {
                 int newLeft = mainView.getLeft() + dx;
                 if (newLeft < 0) newLeft = 0;
                 if (newLeft > dragRange) newLeft = (int) dragRange;
-                mainView.layout(newLeft, mainView.getTop() + dy, mainView.getRight() + dx, mainView.getBottom() + dy);
+                mainView.layout(newLeft, mainView.getTop() + dy, newLeft + mainView.getMeasuredWidth() + dx, mainView.getBottom() + dy);
             }
             super.onViewPositionChanged(changedView, left, top, dx, dy);
+            float fraction = (float) (mainView.getLeft() / dragRange);
+            executeAnim(fraction);
+
+            //设置监听
+            if (fraction == 0 && listener != null) {
+                currentState = DragState.CLOSE;
+                listener.onClose();
+            } else if (fraction == 1 && listener != null) {
+                currentState = DragState.OPEN;
+                listener.onOpen();
+            }
+            //拖拽中
+            if (listener != null) {
+                listener.onDrafting(fraction);
+            }
         }
 
         @Override
         public void onViewReleased(@NonNull View releasedChild, float xvel, float yvel) {
             super.onViewReleased(releasedChild, xvel, yvel);
             if (mainView.getLeft() < dragRange / 2) {
-                viewDragHelper.smoothSlideViewTo(mainView, 0, mainView.getTop());
+                //mainView向左移动，打开
+                open();
             } else {
-                viewDragHelper.smoothSlideViewTo(mainView, (int) dragRange, mainView.getTop());
+                //mainView向右移动，关闭
+                close();
             }
-            ViewCompat.postInvalidateOnAnimation(SlideMenu.this);
+
+            if (xvel > 200 && currentState == DragState.OPEN) {
+                open();
+            } else if (xvel < -200 && currentState == DragState.CLOSE) {
+                close();
+            }
         }
     };
+
+    public void open() {
+        viewDragHelper.smoothSlideViewTo(mainView, 0, mainView.getTop());
+        ViewCompat.postInvalidateOnAnimation(SlideMenu.this);
+    }
+
+    public void close() {
+        viewDragHelper.smoothSlideViewTo(mainView, (int) dragRange, mainView.getTop());
+        ViewCompat.postInvalidateOnAnimation(SlideMenu.this);
+    }
+
+    /**
+     * 执行伴随动画
+     *
+     * @param fraction
+     */
+    private void executeAnim(float fraction) {
+        //缩小mainView
+        mainView.setScaleX(floatEvaluator.evaluate(fraction, 1, 0.8));
+        mainView.setScaleY(floatEvaluator.evaluate(fraction, 1, 0.8));
+        //移动menuView
+        menuView.setTranslationX(floatEvaluator.evaluate(fraction, -menuView.getMeasuredWidth() / 2, 0));
+        //放大menuView
+        menuView.setScaleX(floatEvaluator.evaluate(fraction, 0.5, 1));
+        menuView.setScaleY(floatEvaluator.evaluate(fraction, 0.5, 1));
+        //设置menuView透明度
+        menuView.setAlpha(floatEvaluator.evaluate(fraction, 0.3, 1));
+        //设置背景颜色遮罩效果
+        getBackground().setColorFilter((Integer) argbEvaluator.evaluate(fraction, Color.BLACK, Color.TRANSPARENT), PorterDuff.Mode.SRC_OVER);
+    }
 
     @Override
     public void computeScroll() {
@@ -127,5 +197,19 @@ public class SlideMenu extends FrameLayout {
         if (viewDragHelper.continueSettling(true)) {
             ViewCompat.postInvalidateOnAnimation(SlideMenu.this);
         }
+    }
+
+    private OnDragStateChangeListener listener;
+
+    public void setDragStateChangeListener(OnDragStateChangeListener listener) {
+        this.listener = listener;
+    }
+
+    public interface OnDragStateChangeListener {
+        void onOpen();
+
+        void onClose();
+
+        void onDrafting(float fraction);
     }
 }

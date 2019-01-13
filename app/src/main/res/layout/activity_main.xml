@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:id="@+id/slideMenu"
+    tools:context=".MainActivity"
+    android:background="@mipmap/bg">
 
     <include layout="@layout/layout_menu"/>
     <include layout="@layout/layout_main"/>
